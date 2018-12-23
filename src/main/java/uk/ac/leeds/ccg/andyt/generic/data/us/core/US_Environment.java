@@ -101,12 +101,14 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
     }
 
     public boolean clearSomeData() {
-        return data.clearSomeData();
+        //return data.clearSomeData();
+        return false;
     }
 
     public int clearAllData() {
         int r;
-        r = data.clearAllData();
+        r = 0;
+        //r = data.clearAllData();
         return r;
     }
     

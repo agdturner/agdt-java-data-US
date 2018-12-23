@@ -63,121 +63,59 @@ public class US_JavaCodeGenerator extends US_Object {
         US_JavaCodeGenerator p;
         p = new US_JavaCodeGenerator(new US_Environment());
         p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-        String type;
-        type = "hhold";
+//        String type;
+//        type = "hhold";
+        String name;
+        int n = US_Data.NUKHLSWAVES + US_Data.NBHPSWAVES;
+        HashMap<Short, String> WaveUKHLSNameLookup;
+        WaveUKHLSNameLookup = US_Data.getWaveUKHLSNameLookup();
+        HashMap<Short, String> WaveBHPSNameLookup;
+        WaveBHPSNameLookup = US_Data.getWaveBHPSNameLookup();
         Object[] fieldTypes;
-        fieldTypes = p.getFieldTypes();
-        p.run(type, fieldTypes);
-    }
 
-    protected HashMap<Short, String> getWaveUKHLSNameLookup() {
-        HashMap<Short, String> r;
-        r = new HashMap<>();
-        short wave = 1;
-        r.put(wave, "A");
-        wave++;
-        r.put(wave, "B");
-        wave++;
-        r.put(wave, "C");
-        wave++;
-        r.put(wave, "D");
-        wave++;
-        r.put(wave, "E");
-        wave++;
-        r.put(wave, "F");
-        wave++;
-        r.put(wave, "G");
-        wave++;
-        r.put(wave, "I");
-        wave++;
-        r.put(wave, "J");
-        return r;
-    }
-    
-    protected HashMap<Short, String> getWaveBHPSNameLookup() {
-        HashMap<Short, String> r;
-        r = new HashMap<>();
-        short wave = 1;
-        r.put(wave, "BA");
-        wave++;
-        r.put(wave, "BB");
-        wave++;
-        r.put(wave, "BC");
-        wave++;
-        r.put(wave, "BD");
-        wave++;
-        r.put(wave, "BE");
-        wave++;
-        r.put(wave, "BF");
-        wave++;
-        r.put(wave, "BG");
-        wave++;
-        r.put(wave, "BI");
-        wave++;
-        r.put(wave, "BJ");
-        wave++;
-        r.put(wave, "BK");
-        wave++;
-        r.put(wave, "BL");
-        wave++;
-        r.put(wave, "BM");
-        wave++;
-        r.put(wave, "BN");
-        wave++;
-        r.put(wave, "BO");
-        wave++;
-        r.put(wave, "BP");
-        wave++;
-        r.put(wave, "BQ");
-        wave++;
-        r.put(wave, "BR");
-        return r;
+        name = "indresp";
+        fieldTypes = p.getFieldTypes(name, n, WaveUKHLSNameLookup, WaveBHPSNameLookup);
+        p.run(name, n, fieldTypes);
+
+        name = "hhresp";
+        fieldTypes = p.getFieldTypes(name, n, WaveUKHLSNameLookup, WaveBHPSNameLookup);
+        p.run(name, n, fieldTypes);
     }
 
     /**
      * Pass through the data and works out what numeric type is best to store
      * each field in the data.
      *
-     * @return keys are standardised field names, value is: 0 if field is to be
-     * represented by a String; 1 if field is to be represented by a double; 2
-     * if field is to be represented by a int; 3 if field is to be represented
-     * by a short; 4 if field is to be represented by a byte; 5 if field is to
-     * be represented by a boolean.
+     * @param name
+     * @param n
+     * @param WaveUKHLSNameLookup
+     * @param WaveBHPSNameLookup
+     * @return
      */
-    protected Object[] getFieldTypes() {
-
-        int nwaves = US_Data.NUKHLSWAVES + US_Data.NBHPSWAVES;
-        HashMap<Short, String> WaveUKHLSNameLookup;
-        WaveUKHLSNameLookup = getWaveUKHLSNameLookup();
-        HashMap<Short, String> WaveBHPSNameLookup;
-        WaveBHPSNameLookup = getWaveBHPSNameLookup();
-
+    protected Object[] getFieldTypes(String name, int n,
+            HashMap<Short, String> WaveUKHLSNameLookup,
+            HashMap<Short, String> WaveBHPSNameLookup) {
         Object[] r;
         r = new Object[4];
         File indir;
-        File outdir;
-        File generateddir;
         indir = Files.getUSInputDir();
-        generateddir = Files.getGeneratedUSDir();
-        outdir = new File(generateddir, "Subsets");
-        outdir.mkdirs();
         HashMap<String, Integer>[] allFieldTypes;
-        allFieldTypes = new HashMap[nwaves];
+        allFieldTypes = new HashMap[n];
         String[][] headers;
-        headers = new String[nwaves][];
+        headers = new String[n][];
         HashMap<String, Byte>[] v0ms;
-        v0ms = new HashMap[nwaves];
+        v0ms = new HashMap[n];
         HashMap<String, Byte>[] v1ms;
-        v1ms = new HashMap[nwaves];
+        v1ms = new HashMap[n];
         Object[] t;
         HashMap<String, Integer> fieldTypes;
-        fieldTypes = new HashMap<>();
 
         File indir2;
 
         String[] fields;
         boolean[] strings;
         boolean[] doubles;
+        boolean[] longs;
         boolean[] ints;
         boolean[] shorts;
         boolean[] bytes;
@@ -186,49 +124,54 @@ public class US_JavaCodeGenerator extends US_Object {
         HashMap<String, Byte> v1m;
         String field;
         String type;
-        type = "ukhls";
-        for (short w = 0; w < US_Data.NUKHLSWAVES - 1; w++) {
-            indir2 = new File(indir, type + "_w" + (w + 1));
-            t = loadTest((short) (w + 1), type, WaveUKHLSNameLookup, indir2);
+        int wave;
+        type = "bhps";
+        for (short w = 0; w < US_Data.NBHPSWAVES; w++) {
+            wave = w + 1;
+            indir2 = new File(indir, type + "_w" + wave);
+            t = loadTest((short) wave, type, name, WaveBHPSNameLookup, indir2);
+            fieldTypes = new HashMap<>();
             allFieldTypes[w] = fieldTypes;
             fields = (String[]) t[0];
             headers[w] = fields;
             strings = (boolean[]) t[1];
             doubles = (boolean[]) t[2];
-            ints = (boolean[]) t[3];
-            shorts = (boolean[]) t[4];
-            bytes = (boolean[]) t[5];
-            booleans = (boolean[]) t[6];
-            v0m = (HashMap<String, Byte>) t[7];
-            v1m = (HashMap<String, Byte>) t[8];
+            longs = (boolean[]) t[3];
+            ints = (boolean[]) t[4];
+            shorts = (boolean[]) t[5];
+            bytes = (boolean[]) t[6];
+            booleans = (boolean[]) t[7];
+            v0m = (HashMap<String, Byte>) t[8];
+            v1m = (HashMap<String, Byte>) t[9];
             v0ms[w] = v0m;
             v1ms[w] = v1m;
             for (int i = 0; i < strings.length; i++) {
-                addToFieldTypes(fieldTypes, fields, strings, doubles, ints, 
+                addToFieldTypes(fieldTypes, fields, strings, doubles, longs, ints,
                         shorts, bytes, booleans, i);
             }
         }
-        type = "bhps";
-        for (short w = US_Data.NUKHLSWAVES - 1; w < nwaves; w++) {
-            int wave;
-            wave = w + 1 - US_Data.NUKHLSWAVES;
+        type = "ukhls";
+        for (short w = (short) US_Data.NBHPSWAVES; w < n; w++) {
+            wave = w + 1 - US_Data.NBHPSWAVES;
             indir2 = new File(indir, type + "_w" + wave);
-            t = loadTest((short) (w + 1), type, WaveBHPSNameLookup, indir2);
+            t = loadTest((short) wave, type, name, WaveUKHLSNameLookup, indir2);
+            fieldTypes = new HashMap<>();
             allFieldTypes[w] = fieldTypes;
             fields = (String[]) t[0];
             headers[w] = fields;
             strings = (boolean[]) t[1];
             doubles = (boolean[]) t[2];
-            ints = (boolean[]) t[3];
-            shorts = (boolean[]) t[4];
-            bytes = (boolean[]) t[5];
-            booleans = (boolean[]) t[6];
-            v0m = (HashMap<String, Byte>) t[7];
-            v1m = (HashMap<String, Byte>) t[8];
+            longs = (boolean[]) t[3];
+            ints = (boolean[]) t[4];
+            shorts = (boolean[]) t[5];
+            bytes = (boolean[]) t[6];
+            booleans = (boolean[]) t[7];
+            v0m = (HashMap<String, Byte>) t[8];
+            v1m = (HashMap<String, Byte>) t[9];
             v0ms[w] = v0m;
             v1ms[w] = v1m;
             for (int i = 0; i < strings.length; i++) {
-                addToFieldTypes(fieldTypes, fields, strings, doubles, ints, 
+                addToFieldTypes(fieldTypes, fields, strings, doubles, longs, ints,
                         shorts, bytes, booleans, i);
             }
         }
@@ -238,7 +181,7 @@ public class US_JavaCodeGenerator extends US_Object {
         HashMap<String, Integer> consolidatedFieldTypes;
         consolidatedFieldTypes = new HashMap<>();
         consolidatedFieldTypes.putAll(allFieldTypes[0]);
-        for (int w = 1; w < nwaves; w++) {
+        for (int w = 1; w < n; w++) {
             fieldTypes = allFieldTypes[w];
             ite = fieldTypes.keySet().iterator();
             while (ite.hasNext()) {
@@ -267,6 +210,7 @@ public class US_JavaCodeGenerator extends US_Object {
      * @param fields
      * @param strings
      * @param doubles
+     * @param longs
      * @param ints
      * @param shorts
      * @param bytes
@@ -275,7 +219,7 @@ public class US_JavaCodeGenerator extends US_Object {
      */
     public void addToFieldTypes(HashMap<String, Integer> fieldTypes,
             String[] fields, boolean[] strings, boolean[] doubles,
-            boolean[] ints, boolean[] shorts, boolean[] bytes,
+            boolean[] longs, boolean[] ints, boolean[] shorts, boolean[] bytes,
             boolean[] booleans, int i) {
         String field;
         field = fields[i];
@@ -287,27 +231,32 @@ public class US_JavaCodeGenerator extends US_Object {
                 System.out.println("" + i + " " + "double");
                 fieldTypes.put(field, 1);
             } else {
-                if (ints[i]) {
-                    System.out.println("" + i + " " + "int");
+                if (longs[i]) {
+                    System.out.println("" + i + " " + "long");
                     fieldTypes.put(field, 2);
                 } else {
-                    if (shorts[i]) {
-                        System.out.println("" + i + " " + "short");
+                    if (ints[i]) {
+                        System.out.println("" + i + " " + "int");
                         fieldTypes.put(field, 3);
                     } else {
-                        if (bytes[i]) {
-                            System.out.println("" + i + " " + "byte");
+                        if (shorts[i]) {
+                            System.out.println("" + i + " " + "short");
                             fieldTypes.put(field, 4);
                         } else {
-                            if (booleans[i]) {
-                                System.out.println("" + i + " " + "boolean");
+                            if (bytes[i]) {
+                                System.out.println("" + i + " " + "byte");
                                 fieldTypes.put(field, 5);
                             } else {
-                                try {
-                                    throw new Exception("unrecognised type");
-                                } catch (Exception ex) {
-                                    ex.printStackTrace(System.err);
-                                    Logger.getLogger(US_JavaCodeGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                                if (booleans[i]) {
+                                    System.out.println("" + i + " " + "boolean");
+                                    fieldTypes.put(field, 6);
+                                } else {
+                                    try {
+                                        throw new Exception("unrecognised type");
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace(System.err);
+                                        Logger.getLogger(US_JavaCodeGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             }
                         }
@@ -321,16 +270,19 @@ public class US_JavaCodeGenerator extends US_Object {
      *
      * @param wave
      * @param type
+     * @param name
      * @param waveNameLookup
      * @param indir
      * @return
      */
-    public Object[] loadTest(short wave, String type, HashMap<Short, String> waveNameLookup, File indir) {
+    public Object[] loadTest(short wave, String type, String name,
+            HashMap<Short, String> waveNameLookup, File indir) {
         Object[] r;
-        r = new Object[9];
+        r = new Object[10];
         String[] fields;
         boolean[] strings;
         boolean[] doubles;
+        boolean[] longs;
         boolean[] ints;
         boolean[] shorts;
         boolean[] bytes;
@@ -344,34 +296,35 @@ public class US_JavaCodeGenerator extends US_Object {
         String swave;
         swave = waveNameLookup.get(wave);
         File f;
-        f = getInputFile(swave, indir);
+        f = US_Data.getInputFile(name, swave, indir);
         String m;
         m = "Test load " + type + " wave " + wave + " US " + "data from " + f;
         System.out.println("<" + m + ">");
         BufferedReader br;
         br = Generic_IO.getBufferedReader(f);
         String line;
-        int n;
+        int nf;
         line = br.lines()
                 .findFirst()
                 .get();
         fields = parseHeader(line, wave, waveNameLookup);
-        n = fields.length;
-        strings = new boolean[n];
-        doubles = new boolean[n];
-        ints = new boolean[n];
-        shorts = new boolean[n];
-        bytes = new boolean[n];
-        booleans = new boolean[n];
-        v0 = new byte[n];
-        v1 = new byte[n];
+        nf = fields.length;
+        strings = new boolean[nf];
+        doubles = new boolean[nf];
+        longs = new boolean[nf];
+        ints = new boolean[nf];
+        shorts = new boolean[nf];
+        bytes = new boolean[nf];
+        booleans = new boolean[nf];
+        v0 = new byte[nf];
+        v1 = new byte[nf];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < nf; i++) {
             strings[i] = false;
             doubles[i] = false;
+            longs[i] = false;
             ints[i] = false;
             shorts[i] = false;
-            //bytes[i] = true;
             bytes[i] = false;
             booleans[i] = true;
             v0[i] = Byte.MIN_VALUE;
@@ -381,9 +334,10 @@ public class US_JavaCodeGenerator extends US_Object {
                 .skip(1)
                 .forEach(l -> {
                     String[] split = l.split("\t");
-                    for (int i = 0; i < n; i++) {
-                        parse(split[i], fields[i], i, strings, doubles, ints,
-                                shorts, bytes, booleans, v0, v1, v0m, v1m);
+                    for (int i = 0; i < nf; i++) {
+                        parse(split[i], fields[i], i, strings, doubles, longs,
+                                ints, shorts, bytes, booleans,
+                                v0, v1, v0m, v1m);
                     }
                 });
         /**
@@ -410,22 +364,14 @@ public class US_JavaCodeGenerator extends US_Object {
         r[0] = fields;
         r[1] = strings;
         r[2] = doubles;
-        r[3] = ints;
-        r[4] = shorts;
-        r[5] = bytes;
-        r[6] = booleans;
-        r[7] = v0m;
-        r[8] = v1m;
+        r[3] = longs;
+        r[4] = ints;
+        r[5] = shorts;
+        r[6] = bytes;
+        r[7] = booleans;
+        r[8] = v0m;
+        r[9] = v1m;
         return r;
-    }
-
-    public File getInputFile(String wave, File indir) {
-        File f;
-        String filename;
-        filename = wave + "_indresp";
-        filename += ".tab";
-        f = new File(indir, filename);
-        return f;
     }
 
     /**
@@ -437,6 +383,7 @@ public class US_JavaCodeGenerator extends US_Object {
      * @param index
      * @param strings
      * @param doubles
+     * @param longs
      * @param ints
      * @param shorts
      * @param bytes
@@ -447,7 +394,7 @@ public class US_JavaCodeGenerator extends US_Object {
      * @param v1m
      */
     public void parse(String s, String field, int index, boolean[] strings,
-            boolean[] doubles, boolean[] ints, boolean[] shorts,
+            boolean[] doubles, boolean[] longs, boolean[] ints, boolean[] shorts,
             boolean[] bytes, boolean[] booleans, byte[] v0, byte[] v1,
             HashMap<String, Byte> v0m, HashMap<String, Byte> v1m) {
         if (!s.trim().isEmpty()) {
@@ -455,40 +402,44 @@ public class US_JavaCodeGenerator extends US_Object {
                 if (doubles[index]) {
                     doDouble(s, index, strings, doubles);
                 } else {
-                    if (ints[index]) {
-                        doInt(s, index, strings, doubles, ints);
+                    if (longs[index]) {
+                        doLong(s, index, strings, doubles, longs);
                     } else {
-                        if (shorts[index]) {
-                            doShort(s, index, strings, doubles, ints, shorts);
+                        if (ints[index]) {
+                            doInt(s, index, strings, doubles, longs, ints);
                         } else {
-                            if (bytes[index]) {
-                                doByte(s, index, strings, doubles, ints,
-                                        shorts, bytes);
+                            if (shorts[index]) {
+                                doShort(s, index, strings, doubles, longs, ints, shorts);
                             } else {
-                                if (booleans[index]) {
-                                    if (isByte(s)) {
-                                        byte b = Byte.valueOf(s);
-                                        if (v0[index] > Byte.MIN_VALUE) {
-                                            if (!(b == v0[index])) {
-                                                if (v1[index] > Byte.MIN_VALUE) {
-                                                    if (!(b == v1[index])) {
-                                                        booleans[index] = false;
-                                                        bytes[index] = true;
+                                if (bytes[index]) {
+                                    doByte(s, index, strings, doubles, longs,
+                                            ints, shorts, bytes);
+                                } else {
+                                    if (booleans[index]) {
+                                        if (isByte(s)) {
+                                            byte b = Byte.valueOf(s);
+                                            if (v0[index] > Byte.MIN_VALUE) {
+                                                if (!(b == v0[index])) {
+                                                    if (v1[index] > Byte.MIN_VALUE) {
+                                                        if (!(b == v1[index])) {
+                                                            booleans[index] = false;
+                                                            bytes[index] = true;
+                                                        }
+                                                    } else {
+                                                        v1[index] = b;
+                                                        v1m.put(field, b);
                                                     }
-                                                } else {
-                                                    v1[index] = b;
-                                                    v1m.put(field, b);
                                                 }
+                                            } else {
+                                                v0[index] = b;
+                                                v0m.put(field, b);
                                             }
                                         } else {
-                                            v0[index] = b;
-                                            v0m.put(field, b);
+                                            booleans[index] = false;
+                                            shorts[index] = true;
+                                            doShort(s, index, strings, doubles,
+                                                    longs, ints, shorts);
                                         }
-                                    } else {
-                                        booleans[index] = false;
-                                        shorts[index] = true;
-                                        doShort(s, index, strings, doubles, ints,
-                                                shorts);
                                     }
                                 }
                             }
@@ -500,29 +451,38 @@ public class US_JavaCodeGenerator extends US_Object {
     }
 
     protected void doByte(String s, int index, boolean[] strings,
-            boolean[] doubles, boolean[] ints, boolean[] shorts,
-            boolean[] bytes) {
+            boolean[] doubles, boolean[] longs, boolean[] ints,
+            boolean[] shorts, boolean[] bytes) {
         if (!isByte(s)) {
             bytes[index] = false;
             shorts[index] = true;
-            doShort(s, index, strings, doubles, ints, shorts);
+            doShort(s, index, strings, doubles, longs, ints, shorts);
         }
     }
 
     protected void doShort(String s, int index, boolean[] strings,
-            boolean[] doubles, boolean[] ints, boolean[] shorts) {
+            boolean[] doubles, boolean[] longs, boolean[] ints,
+            boolean[] shorts) {
         if (!isShort(s)) {
             shorts[index] = false;
             ints[index] = true;
-            doInt(s, index, strings, doubles, ints);
+            doInt(s, index, strings, doubles, longs, ints);
         }
-
     }
 
     protected void doInt(String s, int index, boolean[] strings,
-            boolean[] doubles, boolean[] ints) {
+            boolean[] doubles, boolean[] longs, boolean[] ints) {
         if (!isInt(s)) {
             ints[index] = false;
+            longs[index] = true;
+            doLong(s, index, strings, doubles, longs);
+        }
+    }
+
+    protected void doLong(String s, int index, boolean[] strings,
+            boolean[] doubles, boolean[] longs) {
+        if (!isLong(s)) {
+            longs[index] = false;
             doubles[index] = true;
             doDouble(s, index, strings, doubles);
         }
@@ -563,6 +523,15 @@ public class US_JavaCodeGenerator extends US_Object {
         }
     }
 
+    public boolean isLong(String s) {
+        try {
+            long l = Long.parseLong(s);
+            return l > Long.MIN_VALUE;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public boolean isDouble(String s) {
         try {
             Double.parseDouble(s);
@@ -572,7 +541,7 @@ public class US_JavaCodeGenerator extends US_Object {
         }
     }
 
-    public void run(        String type, Object[] types) {
+    public void run(String name, int n, Object[] types) {
         HashMap<String, Integer> fieldTypes;
         fieldTypes = (HashMap<String, Integer>) types[0];
         String[][] headers;
@@ -602,11 +571,11 @@ public class US_JavaCodeGenerator extends US_Object {
         outdir = new File(outdir, "data");
         outdir = new File(outdir, "us");
         outdir = new File(outdir, "data");
-        outdir = new File(outdir, type);
+        outdir = new File(outdir, name);
         outdir.mkdirs();
         String packageName;
-        packageName = "uk.ac.leeds.ccg.andyt.generic.data.us.data.";
-        packageName += type;
+        packageName = "uk.ac.leeds.ccg.andyt.generic.data.us.data";
+        packageName += "." + name;
 
         File fout;
         PrintWriter pw;
@@ -615,40 +584,19 @@ public class US_JavaCodeGenerator extends US_Object {
         String extendedClassName;
         String prepend;
         prepend = "US_";
-        
-        //int nwaves = ; + US_Data.NBHPSWAVES;
 
+        //int nwaves = ; + US_Data.NBHPSWAVES;
         for (int w = 0; w < fields.length; w++) {
-            if (w < US_Data.NUKHLSWAVES) {
+            if (w < n) {
                 // Non-abstract classes
                 wave = w + 1;
                 HashMap<String, Byte> v0m;
                 v0m = v0ms[w];
-                className = prepend + "Wave" + wave + "_" + type + "_Record";
+                className = prepend + "Wave" + wave + "_" + name + "_Record";
                 fout = new File(outdir, className + ".java");
                 pw = Generic_IO.getPrintWriter(fout, false);
                 writeHeaderPackageAndImports(pw, packageName, "");
-                //for (int i = 0; i < )
-                switch (w) {
-                    case 0:
-                        extendedClassName = prepend + "Wave1Or2_" + type + "_Record";
-                        break;
-                    case 1:
-                        extendedClassName = prepend + "Wave1Or2_" + type + "_Record";
-                        break;
-                    case 2:
-                        extendedClassName = prepend + "Wave3Or4Or5_" + type + "_Record";
-                        break;
-                    case 3:
-                        extendedClassName = prepend + "Wave4Or5_" + type + "_Record";
-                        break;
-                    case 4:
-                        extendedClassName = prepend + "Wave4Or5_" + type + "_Record";
-                        break;
-                    default:
-                        extendedClassName = "";
-                        break;
-                }
+                extendedClassName = prepend + name + "_Record";
                 printClassDeclarationSerialVersionUID(pw, packageName,
                         className, "", extendedClassName);
                 // Print Field Declarations Inits And Getters
@@ -666,21 +614,20 @@ public class US_JavaCodeGenerator extends US_Object {
             } else {
                 // Abstract classes
                 pw = null;
-                    className = prepend + "_Record";
-                    fout = new File(outdir, className + ".java");
-                    pw = Generic_IO.getPrintWriter(fout, false);
-                    writeHeaderPackageAndImports(pw, packageName,
-                            "java.io.Serializable");
-                    printClassDeclarationSerialVersionUID(pw, packageName,
-                            className, "Serializable", "");
-                    pw.println("protected String[] s;");
+                className = prepend + name + "_Record";
+                fout = new File(outdir, className + ".java");
+                pw = Generic_IO.getPrintWriter(fout, false);
+                writeHeaderPackageAndImports(pw, packageName,
+                        "java.io.Serializable");
+                printClassDeclarationSerialVersionUID(pw, packageName,
+                        className, "Serializable", "");
+                pw.println("protected String[] s;");
                 // Print Field Declarations Inits And Getters
                 printFieldDeclarationsInitsAndGetters(pw, fields[w], fieldTypes, v0m0);
                 pw.println("}");
                 pw.close();
             }
         }
-
     }
 
     /**
@@ -764,12 +711,15 @@ public class US_JavaCodeGenerator extends US_Object {
                     pw.println("protected double " + field + ";");
                     break;
                 case 2:
-                    pw.println("protected int " + field + ";");
+                    pw.println("protected long " + field + ";");
                     break;
                 case 3:
-                    pw.println("protected short " + field + ";");
+                    pw.println("protected int " + field + ";");
                     break;
                 case 4:
+                    pw.println("protected short " + field + ";");
+                    break;
+                case 5:
                     pw.println("protected byte " + field + ";");
                     break;
                 default:
@@ -802,12 +752,15 @@ public class US_JavaCodeGenerator extends US_Object {
                     pw.println("protected double " + field + "() {");
                     break;
                 case 2:
-                    pw.println("public int get" + field + "() {");
+                    pw.println("public long get" + field + "() {");
                     break;
                 case 3:
-                    pw.println("public short get" + field + "() {");
+                    pw.println("public int get" + field + "() {");
                     break;
                 case 4:
+                    pw.println("public short get" + field + "() {");
+                    break;
+                case 5:
                     pw.println("public byte get" + field + "() {");
                     break;
                 default:
@@ -852,18 +805,25 @@ public class US_JavaCodeGenerator extends US_Object {
                 case 2:
                     pw.println("protected final void init" + field + "(String s) {");
                     pw.println("if (!s.trim().isEmpty()) {");
+                    pw.println(field + " = Long.parseLong(s);");
+                    pw.println("} else {");
+                    pw.println(field + " = Long.MIN_VALUE;");
+                    break;
+                case 3:
+                    pw.println("protected final void init" + field + "(String s) {");
+                    pw.println("if (!s.trim().isEmpty()) {");
                     pw.println(field + " = Integer.parseInt(s);");
                     pw.println("} else {");
                     pw.println(field + " = Integer.MIN_VALUE;");
                     break;
-                case 3:
+                case 4:
                     pw.println("protected final void init" + field + "(String s) {");
                     pw.println("if (!s.trim().isEmpty()) {");
                     pw.println(field + " = Short.parseShort(s);");
                     pw.println("} else {");
                     pw.println(field + " = Short.MIN_VALUE;");
                     break;
-                case 4:
+                case 5:
                     pw.println("protected final void init" + field + "(String s) {");
                     pw.println("if (!s.trim().isEmpty()) {");
                     pw.println(field + " = Byte.parseByte(s);");
@@ -993,20 +953,22 @@ public class US_JavaCodeGenerator extends US_Object {
      * @return
      */
     public TreeSet<String>[] getFields(String[][] headers) {
-        TreeSet<String>[] r;
-        int size;
-        size = headers.length;
-        r = new TreeSet[size + 1];
-        for (int i = 0; i < US_Data.NUKHLSWAVES; i++) {
-            r[i] = getFields(headers[i]);
-        }
-        for (int i = US_Data.NUKHLSWAVES; i < US_Data.NBHPSWAVES; i++) {
-            r[i] = getFields(headers[i]);
-        }
         int n;
         n = US_Data.NUKHLSWAVES + US_Data.NBHPSWAVES;
+        //System.out.println("n " + n);
+        TreeSet<String>[] r;
+        r = new TreeSet[n + 1];
+        for (int i = 0; i < US_Data.NUKHLSWAVES; i++) {
+            //System.out.println(i);
+            r[i] = getFields(headers[i]);
+        }
+        for (int i = US_Data.NUKHLSWAVES; i < n; i++) {
+            //System.out.println(i);
+            r[i] = getFields(headers[i]);
+        }
         r[n] = getFieldsInCommon(r);
-        for (int i = 0; i < n; i ++){
+        for (int i = 0; i < n; i++) {
+            System.out.println(i);
             r[i].removeAll(r[n]);
         }
         return r;
@@ -1073,7 +1035,8 @@ public class US_JavaCodeGenerator extends US_Object {
         TreeSet<String> r;
         r = new TreeSet<>();
         r.addAll(sets[0]);
-        for (int i = 1; i < sets.length; i ++) {
+        for (int i = 1; i < sets.length - 1; i++) {
+            System.out.println(i);
             r.retainAll(sets[i]);
         }
         return r;
