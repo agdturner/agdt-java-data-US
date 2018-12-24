@@ -19,12 +19,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Environment;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.us.io.US_Files;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Object;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.US_Data;
+import uk.ac.leeds.ccg.andyt.generic.data.us.data.US_ID;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.hhresp.US_Wave1_hhresp_Record;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.hhresp.US_Wave2_hhresp_Record;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.hhresp.US_Wave3_hhresp_Record;
@@ -137,7 +139,8 @@ public class US_Main_Process extends US_Object {
 
         int n = US_Data.NBHPSWAVES + US_Data.NUKHLSWAVES;
 
-        doDataProcessingStep1(indir, outdir, n, WaveUKHLSNameLookup, WaveBHPSNameLookup);
+        doDataProcessingStep1(indir, outdir, n, WaveBHPSNameLookup,
+                WaveUKHLSNameLookup);
 
         logPW.close();
     }
@@ -163,10 +166,13 @@ public class US_Main_Process extends US_Object {
      *
      * @param indir
      * @param outdir
+     * @param n
+     * @param WaveBHPSNameLookup
+     * @param WaveUKHLSNameLookup
      */
     public void doDataProcessingStep1(File indir, File outdir, int n,
-            HashMap<Short, String> WaveUKHLSNameLookup,
-            HashMap<Short, String> WaveBHPSNameLookup) {
+            HashMap<Short, String> WaveBHPSNameLookup,
+            HashMap<Short, String> WaveUKHLSNameLookup) {
         initlog(1);
         Object[] r;
         r = new Object[4];
@@ -182,523 +188,158 @@ public class US_Main_Process extends US_Object {
          * Get the household data to attach to the individual records
          */
         HashMap<Short, HashMap<Integer, Short>> HIDPToHSOWNLookups;
-        HIDPToHSOWNLookups = new HashMap<>();
-        name = "hhresp";
-        System.out.println(name);
-        type = "bhps";
-        for (short wave = 1; wave < WaveBHPSNameLookup.size() + 1; wave++) {
-            HashMap<Integer, Short> HIDPToHSOWN;
-            HIDPToHSOWN = new HashMap<>();
-            HIDPToHSOWNLookups.put(wave, HIDPToHSOWN);
-            indir2 = new File(indir, type + "_w" + wave);
-            swave = WaveBHPSNameLookup.get(wave);
-            f = US_Data.getInputFile(name, swave, indir2);
-            m = "Test load " + type + " wave " + wave + " US " + "data from " + f;
-            System.out.println("<" + m + ">");
-            switch (wave) {
-                case 1:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave1_hhresp_Record rec;
-                                rec = new US_Wave1_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //  short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 2:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave2_hhresp_Record rec;
-                                rec = new US_Wave2_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //    short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 3:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave3_hhresp_Record rec;
-                                rec = new US_Wave3_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //      short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 4:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave4_hhresp_Record rec;
-                                rec = new US_Wave4_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 5:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave5_hhresp_Record rec;
-                                rec = new US_Wave5_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //          short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 6:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave6_hhresp_Record rec;
-                                rec = new US_Wave6_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //            short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 7:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave7_hhresp_Record rec;
-                                rec = new US_Wave7_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //              short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 8:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave8_hhresp_Record rec;
-                                rec = new US_Wave8_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 9:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave9_hhresp_Record rec;
-                                rec = new US_Wave9_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                  short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 10:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave10_hhresp_Record rec;
-                                rec = new US_Wave10_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                    short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 11:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave11_hhresp_Record rec;
-                                rec = new US_Wave11_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                      short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 12:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave12_hhresp_Record rec;
-                                rec = new US_Wave12_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 13:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave13_hhresp_Record rec;
-                                rec = new US_Wave13_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                          short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 14:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave14_hhresp_Record rec;
-                                rec = new US_Wave14_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                            short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 15:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave15_hhresp_Record rec;
-                                rec = new US_Wave15_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-                                //                              short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 16:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave16_hhresp_Record rec;
-                                rec = new US_Wave16_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-//                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 17:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave17_hhresp_Record rec;
-                                rec = new US_Wave17_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-//                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 18:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave18_hhresp_Record rec;
-                                rec = new US_Wave18_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND_BH = rec.getHSOWND_BH();
-                                HIDPToHSOWN.put(HIDP, HSOWND_BH);
-//                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                default:
-                    break;
-            }
-            System.out.println("</" + m + ">");
-        }
-
-        type = "ukhls";
-        for (short w = (short) (WaveBHPSNameLookup.size() + 1); w < n; w++) {
-            HashMap<Integer, Short> HIDPToHSOWN;
-            HIDPToHSOWN = new HashMap<>();
-            HIDPToHSOWNLookups.put(w, HIDPToHSOWN);
-            short wave = (short) (w - WaveBHPSNameLookup.size());
-            indir2 = new File(indir, type + "_w" + wave);
-            swave = WaveUKHLSNameLookup.get(wave);
-            f = US_Data.getInputFile(name, swave, indir2);
-            m = "Test load " + type + " wave " + w + " US " + "data from " + f;
-            System.out.println("<" + m + ">");
-            switch (wave) {
-                case 19:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave19_hhresp_Record rec;
-                                rec = new US_Wave19_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 20:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave20_hhresp_Record rec;
-                                rec = new US_Wave20_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 21:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave21_hhresp_Record rec;
-                                rec = new US_Wave21_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 22:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave22_hhresp_Record rec;
-                                rec = new US_Wave22_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 23:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave23_hhresp_Record rec;
-                                rec = new US_Wave23_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 24:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave24_hhresp_Record rec;
-                                rec = new US_Wave24_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 25:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave25_hhresp_Record rec;
-                                rec = new US_Wave25_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                case 26:
-                    br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave26_hhresp_Record rec;
-                                rec = new US_Wave26_hhresp_Record(l);
-                                int HIDP = rec.getHIDP();
-                                short HSOWND = rec.getHSOWND();
-                                HIDPToHSOWN.put(HIDP, HSOWND);
-                                short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
-                            });
-                    break;
-                default:
-                    break;
-            }
-            System.out.println("</" + m + ">");
-        }
-
+        HIDPToHSOWNLookups = getHIDPToHSOWNLookups(n, indir, WaveBHPSNameLookup,
+                WaveUKHLSNameLookup);
+        /**
+         * Get the individual records and attach household details. And create
+         * sets for those people in subsequent waves.
+         */
+        HashMap<Short, HashSet<US_ID>> sets;
+        sets = new HashMap<>();
         name = "indresp";
         System.out.println(name);
         type = "bhps";
         for (short wave = 1; wave < WaveBHPSNameLookup.size() + 1; wave++) {
+            HashSet<US_ID> set0;
+            set0 = sets.get((short) (wave - 1));
+            HashSet<US_ID> set1;
+            set1 = new HashSet<>();
+            sets.put(wave, set1);
             HashMap<Integer, Short> HIDPToHSOWN;
             HIDPToHSOWN = HIDPToHSOWNLookups.get(wave);
             indir2 = new File(indir, type + "_w" + wave);
             swave = WaveBHPSNameLookup.get(wave);
             f = US_Data.getInputFile(name, swave, indir2);
+            outf = new File(outdir, swave + "_Wave" + wave + "_" + type + "Subset.csv");
+            PrintWriter pw0;
+            pw0 = Generic_IO.getPrintWriter(outf, false);
+            printHeader(wave, pw0);
             outf = new File(outdir, swave + "_Wave" + wave + "_" + type + ".csv");
-            PrintWriter pw;
-            pw = Generic_IO.getPrintWriter(outf, false);
-            printHeader(wave, pw);
+            PrintWriter pw1;
+            pw1 = Generic_IO.getPrintWriter(outf, false);
+            printHeader(wave, pw1);
             m = "Test load " + type + " wave " + wave + " US " + "data from " + f;
             System.out.println("<" + m + ">");
             switch (wave) {
                 case 1:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave1_indresp_Record rec;
-                                rec = new US_Wave1_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave1_indresp_Record rec;
+                        rec = new US_Wave1_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 1, null, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 2:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave2_indresp_Record rec;
-                                rec = new US_Wave2_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave2_indresp_Record rec;
+                        rec = new US_Wave2_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 2, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 3:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave3_indresp_Record rec;
-                                rec = new US_Wave3_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave3_indresp_Record rec;
+                        rec = new US_Wave3_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 3, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 4:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave4_indresp_Record rec;
-                                rec = new US_Wave4_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave4_indresp_Record rec;
+                        rec = new US_Wave4_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 4, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 5:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave5_indresp_Record rec;
-                                rec = new US_Wave5_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave5_indresp_Record rec;
+                        rec = new US_Wave5_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 5, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 6:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave6_indresp_Record rec;
-                                rec = new US_Wave6_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave6_indresp_Record rec;
+                        rec = new US_Wave6_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 6, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 7:
                     br = Generic_IO.getBufferedReader(f);
@@ -717,245 +358,234 @@ public class US_Main_Process extends US_Object {
                                 byte GOR_DV = rec.getGOR_DV();
                                 byte HIQUAL_DV = rec.getHIQUAL_DV();
                                 short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                                processBHPS((byte) 7, set0, set1, pw0, pw1, SEX,
+                                        AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                        GOR_DV, HIQUAL_DV, HSOWN);
                             });
                     break;
                 case 8:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave8_indresp_Record rec;
-                                rec = new US_Wave8_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave8_indresp_Record rec;
+                        rec = new US_Wave8_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 8, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 9:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave9_indresp_Record rec;
-                                rec = new US_Wave9_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave9_indresp_Record rec;
+                        rec = new US_Wave9_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 9, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 10:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave10_indresp_Record rec;
-                                rec = new US_Wave10_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave10_indresp_Record rec;
+                        rec = new US_Wave10_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 10, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 11:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave11_indresp_Record rec;
-                                rec = new US_Wave11_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave11_indresp_Record rec;
+                        rec = new US_Wave11_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 11, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 12:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave12_indresp_Record rec;
-                                rec = new US_Wave12_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave12_indresp_Record rec;
+                        rec = new US_Wave12_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 12, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 13:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave13_indresp_Record rec;
-                                rec = new US_Wave13_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave13_indresp_Record rec;
+                        rec = new US_Wave13_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 13, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 14:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave14_indresp_Record rec;
-                                rec = new US_Wave14_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave14_indresp_Record rec;
+                        rec = new US_Wave14_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 14, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 15:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave15_indresp_Record rec;
-                                rec = new US_Wave15_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave15_indresp_Record rec;
+                        rec = new US_Wave15_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 15, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 16:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave16_indresp_Record rec;
-                                rec = new US_Wave16_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave16_indresp_Record rec;
+                        rec = new US_Wave16_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 16, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 17:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave17_indresp_Record rec;
-                                rec = new US_Wave17_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //int FININT_TM = w1rec.getFIMNNINT_TM();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave17_indresp_Record rec;
+                        rec = new US_Wave17_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //int FININT_TM = w1rec.getFIMNNINT_TM();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 17, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 18:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave18_indresp_Record rec;
-                                rec = new US_Wave18_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                //byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP, JBSTAT,
-                                        JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
-                            });
-                    break;
-                default:
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave18_indresp_Record rec;
+                        rec = new US_Wave18_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        //byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processBHPS((byte) 18, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, JBSTAT, JBRGSC_DV,
+                                GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
             }
-            pw.close();
+            pw0.close();
+            pw1.close();
             System.out.println("</" + m + ">");
         }
         type = "ukhls";
@@ -963,204 +593,526 @@ public class US_Main_Process extends US_Object {
             HashMap<Integer, Short> HIDPToHSOWN;
             HIDPToHSOWN = HIDPToHSOWNLookups.get(w);
             short wave = (short) (w - WaveBHPSNameLookup.size());
+            HashSet<US_ID> set0;
+            set0 = sets.get((short) (wave - 1));
+            HashSet<US_ID> set1;
+            set1 = new HashSet<>();
+            sets.put(wave, set1);
             indir2 = new File(indir, type + "_w" + wave);
             swave = WaveUKHLSNameLookup.get(wave);
             f = US_Data.getInputFile(name, swave, indir2);
-            outf = new File(outdir, swave + "_Wave" + w + "_" + type + ".csv");
-            PrintWriter pw;
-            pw = Generic_IO.getPrintWriter(outf, false);
-            printHeader(wave, pw);
+            outf = new File(outdir, swave + "_Wave" + wave + "_" + type + "Subset.csv");
+            PrintWriter pw0;
+            pw0 = Generic_IO.getPrintWriter(outf, false);
+            printHeader(wave, pw0);
+            outf = new File(outdir, swave + "_Wave" + wave + "_" + type + ".csv");
+            PrintWriter pw1;
+            pw1 = Generic_IO.getPrintWriter(outf, false);
+            printHeader(wave, pw1);
             m = "Test load " + type + " wave " + w + " US " + "data from " + f;
             System.out.println("<" + m + ">");
             switch (w) {
                 case 19:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave19_indresp_Record rec;
-                                rec = new US_Wave19_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave19_indresp_Record rec;
+                        rec = new US_Wave19_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 20:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave20_indresp_Record rec;
-                                rec = new US_Wave20_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave20_indresp_Record rec;
+                        rec = new US_Wave20_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 21:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave21_indresp_Record rec;
-                                rec = new US_Wave21_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSDV();
-                                //short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave21_indresp_Record rec;
+                        rec = new US_Wave21_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSDV();
+                        //short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 22:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave22_indresp_Record rec;
-                                rec = new US_Wave22_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave22_indresp_Record rec;
+                        rec = new US_Wave22_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 23:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave23_indresp_Record rec;
-                                rec = new US_Wave23_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                //short AGE_DV = Short.MIN_VALUE;
-                                byte AGE_DV = rec.getAGDV();
-                                //short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave23_indresp_Record rec;
+                        rec = new US_Wave23_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        //short AGE_DV = Short.MIN_VALUE;
+                        byte AGE_DV = rec.getAGDV();
+                        //short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 24:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave24_indresp_Record rec;
-                                rec = new US_Wave24_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave24_indresp_Record rec;
+                        rec = new US_Wave24_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 25:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave25_indresp_Record rec;
-                                rec = new US_Wave25_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave25_indresp_Record rec;
+                        rec = new US_Wave25_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
                 case 26:
                     br = Generic_IO.getBufferedReader(f);
-                    br.lines()
-                            .skip(1)
-                            .forEach(l -> {
-                                US_Wave26_indresp_Record rec;
-                                rec = new US_Wave26_indresp_Record(l);
-                                byte SEX = rec.getSEX();
-                                short AGE_DV = rec.getAGE_DV();
-                                int PIDP = rec.getPIDP();
-                                int HIDP = rec.getHIDP();
-                                byte FIMNGRS_TC = rec.getFIMNGRS_TC();
-                                byte JBSTAT = rec.getJBSTAT();
-                                short JBRGSC_DV = rec.getJBRGSC_DV();
-                                byte GOR_DV = rec.getGOR_DV();
-                                byte HIQUAL_DV = rec.getHIQUAL_DV();
-                                short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
-                                printRecord(pw, SEX, AGE_DV, PIDP, HIDP,
-                                        FIMNGRS_TC, JBSTAT, JBRGSC_DV, GOR_DV,
-                                        HIQUAL_DV, HSOWN);
-                            });
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave26_indresp_Record rec;
+                        rec = new US_Wave26_indresp_Record(l);
+                        byte SEX = rec.getSEX();
+                        short AGE_DV = rec.getAGE_DV();
+                        int PIDP = rec.getPIDP();
+                        int HIDP = rec.getHIDP();
+                        byte FIMNGRS_TC = rec.getFIMNGRS_TC();
+                        byte JBSTAT = rec.getJBSTAT();
+                        short JBRGSC_DV = rec.getJBRGSC_DV();
+                        byte GOR_DV = rec.getGOR_DV();
+                        byte HIQUAL_DV = rec.getHIQUAL_DV();
+                        short HSOWN = getHSOWN(HIDPToHSOWN, HIDP);
+                        processUKHLS(wave, set0, set1, pw0, pw1, SEX,
+                                AGE_DV, PIDP, HIDP, FIMNGRS_TC, JBSTAT,
+                                JBRGSC_DV, GOR_DV, HIQUAL_DV, HSOWN);
+                    });
                     break;
             }
-            pw.close();
+            pw0.close();
+            pw1.close();
             System.out.println("</" + m + ">");
         }
         logPW.close();
     }
 
-    protected short getHSOWN(HashMap<Integer, Short> HIDPToHSOWN, 
-            Integer HIDP) {
+    /**
+     * Get the household data to attach to the individual records
+     *
+     * @param n
+     * @param indir
+     * @param WaveBHPSNameLookup
+     * @param WaveUKHLSNameLookup
+     * @return
+     */
+    protected HashMap<Short, HashMap<Integer, Short>> getHIDPToHSOWNLookups(
+            int n, File indir,
+            HashMap<Short, String> WaveBHPSNameLookup,
+            HashMap<Short, String> WaveUKHLSNameLookup) {
+        HashMap<Short, HashMap<Integer, Short>> r;
+        r = new HashMap<>();
+        String name;
+        String type;
+        File indir2;
+        String swave;
+        File f;
+        String m;
+        BufferedReader br;
+        name = "hhresp";
+        System.out.println(name);
+        type = "bhps";
+        for (short wave = 1; wave < WaveBHPSNameLookup.size() + 1; wave++) {
+            HashMap<Integer, Short> HIDPToHSOWN;
+            HIDPToHSOWN = new HashMap<>();
+            r.put(wave, HIDPToHSOWN);
+            indir2 = new File(indir, type + "_w" + wave);
+            swave = WaveBHPSNameLookup.get(wave);
+            f = US_Data.getInputFile(name, swave, indir2);
+            m = "Test load " + type + " wave " + wave + " US " + "data from " + f;
+            System.out.println("<" + m + ">");
+            switch (wave) {
+                case 1:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave1_hhresp_Record rec;
+                        rec = new US_Wave1_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 2:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave2_hhresp_Record rec;
+                        rec = new US_Wave2_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 3:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave3_hhresp_Record rec;
+                        rec = new US_Wave3_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 4:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave4_hhresp_Record rec;
+                        rec = new US_Wave4_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 5:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave5_hhresp_Record rec;
+                        rec = new US_Wave5_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 6:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave6_hhresp_Record rec;
+                        rec = new US_Wave6_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN
+                                .put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 7:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave7_hhresp_Record rec;
+                        rec = new US_Wave7_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 8:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave8_hhresp_Record rec;
+                        rec = new US_Wave8_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 9:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave9_hhresp_Record rec;
+                        rec = new US_Wave9_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 10:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave10_hhresp_Record rec;
+                        rec = new US_Wave10_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 11:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave11_hhresp_Record rec;
+                        rec = new US_Wave11_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 12:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave12_hhresp_Record rec;
+                        rec = new US_Wave12_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 13:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave13_hhresp_Record rec;
+                        rec = new US_Wave13_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 14:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave14_hhresp_Record rec;
+                        rec = new US_Wave14_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 15:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave15_hhresp_Record rec;
+                        rec = new US_Wave15_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 16:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave16_hhresp_Record rec;
+                        rec = new US_Wave16_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 17:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave17_hhresp_Record rec;
+                        rec = new US_Wave17_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                case 18:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave18_hhresp_Record rec;
+                        rec = new US_Wave18_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND_BH = rec.getHSOWND_BH();
+                        HIDPToHSOWN.put(HIDP, HSOWND_BH);
+                    });
+                    break;
+                default:
+                    break;
+            }
+            System.out.println("</" + m + ">");
+        }
+        type = "ukhls";
+        for (short w = (short) (WaveBHPSNameLookup.size() + 1); w < n; w++) {
+            HashMap<Integer, Short> HIDPToHSOWN;
+            HIDPToHSOWN = new HashMap<>();
+            r.put(w, HIDPToHSOWN);
+            short wave = (short) (w - WaveBHPSNameLookup.size());
+            indir2 = new File(indir, type + "_w" + wave);
+            swave = WaveUKHLSNameLookup.get(wave);
+            f = US_Data.getInputFile(name, swave, indir2);
+            m = "Test load " + type + " wave " + w + " US " + "data from " + f;
+            System.out.println("<" + m + ">");
+            switch (wave) {
+                case 19:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave19_hhresp_Record rec;
+                        rec = new US_Wave19_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 20:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave20_hhresp_Record rec;
+                        rec = new US_Wave20_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 21:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave21_hhresp_Record rec;
+                        rec = new US_Wave21_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 22:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave22_hhresp_Record rec;
+                        rec = new US_Wave22_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 23:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave23_hhresp_Record rec;
+                        rec = new US_Wave23_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 24:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave24_hhresp_Record rec;
+                        rec = new US_Wave24_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 25:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave25_hhresp_Record rec;
+                        rec = new US_Wave25_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                case 26:
+                    br = Generic_IO.getBufferedReader(f);
+                    br.lines().skip(1).forEach(l -> {
+                        US_Wave26_hhresp_Record rec;
+                        rec = new US_Wave26_hhresp_Record(l);
+                        int HIDP = rec.getHIDP();
+                        short HSOWND = rec.getHSOWND();
+                        HIDPToHSOWN.put(HIDP, HSOWND);
+                        short FIHHMNGRS_TC = rec.getFIHHMNGRS_TC();
+                    });
+                    break;
+                default:
+                    break;
+            }
+            System.out.println("</" + m + ">");
+        }
+        return r;
+    }
+
+    protected short getHSOWN(HashMap<Integer, Short> HIDPToHSOWN, Integer HIDP) {
         short HSOWN;
         if (HIDPToHSOWN.containsKey(HIDP)) {
             HSOWN = HIDPToHSOWN.get(HIDP);
@@ -1188,9 +1140,10 @@ public class US_Main_Process extends US_Object {
         }
     }
 
-    protected void printRecord(PrintWriter pw, byte SEX, short AGE_DV, int PIDP,
-            int HIDP, byte JBSTAT, short JBRGSC_DV, byte GOR_DV,
-            byte HIQUAL_DV, short HSOWN) {
+    protected void processBHPS(short wave, HashSet<US_ID> set0, 
+            HashSet<US_ID> set1, PrintWriter pw0, PrintWriter pw1, 
+            byte SEX, short AGE_DV, int PIDP, int HIDP, byte JBSTAT,
+            short JBRGSC_DV, byte GOR_DV, byte HIQUAL_DV, short HSOWN) {
         String s;
         s = "";
         s += getByteString(SEX);
@@ -1202,12 +1155,19 @@ public class US_Main_Process extends US_Object {
         s += getByteString(GOR_DV);
         s += getByteString(HIQUAL_DV);
         s += getShortString(HSOWN);
-        pw.println(s);
+        if (wave > 1) {
+            if (set0.contains(new US_ID(PIDP))) {
+                pw0.println(s);
+            }
+        }
+        pw1.println(s);
+        set1.add(new US_ID(PIDP));
     }
 
-    protected void printRecord(PrintWriter pw, byte SEX, short AGE_DV, int PIDP,
-            int HIDP, byte FIMNGRS_TC, byte JBSTAT, short JBRGSC_DV, byte GOR_DV,
-            byte HIQUAL_DV, short HSOWN) {
+    protected void processUKHLS(short wave, HashSet<US_ID> set0,
+            HashSet<US_ID> set1, PrintWriter pw0, PrintWriter pw1, byte SEX,
+            short AGE_DV, int PIDP, int HIDP, byte FIMNGRS_TC, byte JBSTAT,
+            short JBRGSC_DV, byte GOR_DV, byte HIQUAL_DV, short HSOWN) {
         String s;
         s = "";
         s += getByteString(SEX);
@@ -1219,7 +1179,13 @@ public class US_Main_Process extends US_Object {
         s += getByteString(GOR_DV);
         s += getByteString(HIQUAL_DV);
         s += getShortString(HSOWN);
-        pw.println(s);
+        if (wave > 1) {
+            if (set0.contains(new US_ID(PIDP))) {
+                pw0.println(s);
+            }
+        }
+        pw1.println(s);
+        set1.add(new US_ID(PIDP));
     }
 
     public String getByteString(byte b) {
@@ -1266,7 +1232,7 @@ public class US_Main_Process extends US_Object {
         logPW.println(s);
     }
 
-    public static void log1(String s) {
+    public static void lo1(String s) {
         System.out.println(s);
     }
 
@@ -1286,8 +1252,6 @@ public class US_Main_Process extends US_Object {
         logPW.println(s);
         System.out.println(s);
     }
-
     boolean doJavaCodeGeneration = false;
     boolean doLoadDataIntoCaches = false;
-
 }
