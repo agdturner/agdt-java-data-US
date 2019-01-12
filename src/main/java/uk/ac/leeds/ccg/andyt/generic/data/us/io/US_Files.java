@@ -26,23 +26,21 @@ import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
  */
 public class US_Files extends Generic_Files implements Serializable {
 
-    public transient US_Strings Strings;
+    /**
+     *
+     * @param s
+     */
+    public US_Files(US_Strings s) {
+        super(s);
+    }
 
     /**
      *
      * @param s
-     * @param dataDirName
+     * @param dataDir
      */
-    public US_Files(US_Strings s, String dataDirName) {
-        super(dataDirName);
-        this.Strings = s;
-    }
-
-    public File getInputDataDir() {
-        if (InputDataDir == null) {
-            InputDataDir = new File(getDataDir(), Strings.s_input);
-        }
-        return InputDataDir;
+    public US_Files(US_Strings s, File dataDir) {
+        super(s, dataDir);
     }
 
     public File getInputDataDir(String s) {
@@ -51,26 +49,24 @@ public class US_Files extends Generic_Files implements Serializable {
 
     public File getUSInputDir() {
         File r;
-        r = getInputDataDir(Strings);
+        r = getInputDataDir();
         //r = new File(getInputDataDir(Strings), "US");
         r = new File(r, "UKDA-6614-tab");
         r = new File(r, "tab");
         return r;
     }
 
-    public File getGeneratedUSDir() {
-//        File dir;
-//        dir = getGeneratedDataDir(Strings);
-//        File f;
-//        f = new File(dir, "US");
-//        f.mkdirs();
-//        return f;
-        return getGeneratedDataDir(Strings);
+    public File getGeneratedDataUSDir() {
+        File dir;
+        dir = getGeneratedDataDir();
+        dir = new File(dir, getStrings().s_US);
+        dir.mkdirs();
+        return dir;
     }
     
     public File getGeneratedUSSubsetsDir() {
         File dir;
-        dir = getGeneratedUSDir();
+        dir = getGeneratedDataUSDir();
         File f;
         f = new File(dir, "Subsets");
         f.mkdirs();
@@ -78,6 +74,10 @@ public class US_Files extends Generic_Files implements Serializable {
     }
 
     public File getEnvDataFile() {
-        return new File(getGeneratedDataDir(Strings), "Env.dat");
+        return new File(getGeneratedDataUSDir(), "Env.dat");
+    }
+    
+    public US_Strings getStrings(){
+        return (US_Strings) Strings;
     }
 }

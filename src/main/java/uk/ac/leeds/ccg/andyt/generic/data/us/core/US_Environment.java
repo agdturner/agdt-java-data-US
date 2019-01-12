@@ -29,14 +29,13 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
     public US_Environment() {
         //Memory_Threshold = 3000000000L;
         Strings = new US_Strings();
-        Files = new US_Files(Strings, Strings.s_data);
+        Files = new US_Files(Strings);
         ge = new Generic_Environment(Files, Strings);
         File f;
         f = Files.getEnvDataFile();
         if (f.exists()) {
             loadData();
             data.Files = Files;
-            data.Files.Strings = Strings;
             data.Strings = Strings;
         } else {
             data = new US_Data(Files, Strings);
