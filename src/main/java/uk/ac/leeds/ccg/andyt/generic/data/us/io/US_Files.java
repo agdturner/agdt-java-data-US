@@ -26,23 +26,13 @@ import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
  */
 public class US_Files extends Generic_Files implements Serializable {
 
-    public transient US_Strings Strings;
-
     /**
      *
      * @param s
-     * @param dataDirName
+     * @param dir
      */
-    public US_Files(US_Strings s, String dataDirName) {
-        super(dataDirName);
-        this.Strings = s;
-    }
-
-    public File getInputDataDir() {
-        if (InputDataDir == null) {
-            InputDataDir = new File(getDataDir(), Strings.s_input);
-        }
-        return InputDataDir;
+    public US_Files(US_Strings s, File dir) {
+        super(s, dir);
     }
 
     public File getInputDataDir(String s) {
@@ -51,7 +41,7 @@ public class US_Files extends Generic_Files implements Serializable {
 
     public File getUSInputDir() {
         File r;
-        r = getInputDataDir(Strings);
+        r = getInputDataDir();
         //r = new File(getInputDataDir(Strings), "US");
         r = new File(r, "UKDA-6614-tab");
         r = new File(r, "tab");
@@ -65,7 +55,7 @@ public class US_Files extends Generic_Files implements Serializable {
 //        f = new File(dir, "US");
 //        f.mkdirs();
 //        return f;
-        return getGeneratedDataDir(Strings);
+        return getGeneratedDataDir();
     }
     
     public File getGeneratedUSSubsetsDir() {
@@ -78,6 +68,6 @@ public class US_Files extends Generic_Files implements Serializable {
     }
 
     public File getEnvDataFile() {
-        return new File(getGeneratedDataDir(Strings), "Env.dat");
+        return new File(getGeneratedDataDir(), "Env.dat");
     }
 }

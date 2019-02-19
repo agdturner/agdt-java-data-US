@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Environment;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
@@ -49,20 +50,21 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected US_JavaCodeGenerator() {
         super();
-        Strings = Env.Strings;
-        Files = Env.Files;
+        Strings = Env.strings;
+        Files = Env.files;
     }
 
     public US_JavaCodeGenerator(US_Environment env) {
         super(env);
-        Strings = Env.Strings;
-        Files = Env.Files;
+        Strings = Env.strings;
+        Files = Env.files;
     }
 
     public static void main(String[] args) {
         US_JavaCodeGenerator p;
-        p = new US_JavaCodeGenerator(new US_Environment());
-        p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+        p = new US_JavaCodeGenerator(new US_Environment(
+                new Generic_Environment()));
+        //p.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
 //        String type;
 //        type = "hhold";
         String name;

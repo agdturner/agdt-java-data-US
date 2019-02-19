@@ -20,12 +20,12 @@ public class US_Data {
     public static short NBHPSWAVES = 18;
     public static short NUKHLSWAVES = 8;
     
-    public US_Files Files;
-    public US_Strings Strings;
+    public US_Files files;
+    public US_Strings strings;
     
     public US_Data(US_Files Files, US_Strings Strings) {
-        this.Files = Files;
-        this.Strings = Strings;
+        this.files = Files;
+        this.strings = Strings;
     }
     
     public static HashMap<Short, String> getWaveUKHLSNameLookup() {

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Environment;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
@@ -100,23 +101,24 @@ public class US_Main_Process extends US_Object {
     public US_Main_Process(US_Environment env) {
         super(env);
         data = env.data;
-        Strings = env.Strings;
-        Files = env.Files;
+        Strings = env.strings;
+        Files = env.files;
     }
 
     public static void main(String[] args) {
+        Generic_Environment ge = new Generic_Environment();
         US_Main_Process p;
         US_Environment env;
-        env = new US_Environment();
+        env = new US_Environment(ge);
         p = new US_Main_Process(env);
-        p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+        //p.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
         // Main switches
         //p.doJavaCodeGeneration = true;
         p.run();
     }
 
     public void run() {
-        logF0 = new File(Files.getOutputDataDir(Strings), "log0.txt");
+        logF0 = new File(Files.getOutputDataDir(), "log0.txt");
         logPW0 = Generic_IO.getPrintWriter(logF0, false); // Overwrite log file.
 
         if (doJavaCodeGeneration) {
@@ -155,7 +157,7 @@ public class US_Main_Process extends US_Object {
     }
 
     protected void initlog(int i) {
-        logF = new File(Files.getOutputDataDir(Strings), "log" + i + ".txt");
+        logF = new File(Files.getOutputDataDir(), "log" + i + ".txt");
         logPW = Generic_IO.getPrintWriter(logF, true); // Append to log file.
     }
 

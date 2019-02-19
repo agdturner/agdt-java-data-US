@@ -16,8 +16,8 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
         implements Serializable {
 
     public transient Generic_Environment ge;
-    public transient US_Strings Strings;
-    public transient US_Files Files;
+    public transient US_Strings strings;
+    public transient US_Files files;
     
     /**
      * Data.
@@ -26,20 +26,19 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
 
     public transient static final String EOL = System.getProperty("line.separator");
 
-    public US_Environment() {
+    public US_Environment(Generic_Environment ge) {
         //Memory_Threshold = 3000000000L;
-        Strings = new US_Strings();
-        Files = new US_Files(Strings, Strings.s_data);
-        ge = new Generic_Environment(Files, Strings);
+        this.ge = ge;
+        strings = new US_Strings();
+        files = new US_Files(strings, ge.getFiles().getDataDir());
         File f;
-        f = Files.getEnvDataFile();
+        f = files.getEnvDataFile();
         if (f.exists()) {
             loadData();
-            data.Files = Files;
-            data.Files.Strings = Strings;
-            data.Strings = Strings;
+            data.files = files;
+            data.strings = strings;
         } else {
-            data = new US_Data(Files, Strings);
+            data = new US_Data(files, strings);
         }
     }
 
@@ -114,7 +113,7 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
     
     public void cacheData() {
         File f;
-        f = Files.getEnvDataFile();
+        f = files.getEnvDataFile();
         System.out.println("<cache data>");
         Generic_IO.writeObject(data, f);
         System.out.println("</cache data>");
@@ -122,7 +121,7 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
 
     public final void loadData() {
         File f;
-        f = Files.getEnvDataFile();
+        f = files.getEnvDataFile();
         System.out.println("<load data>");
         data = (US_Data) Generic_IO.readObject(f);
         System.out.println("<load data>");
