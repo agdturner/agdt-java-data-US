@@ -32,6 +32,11 @@ import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.us.io.US_Files;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Object;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.US_Data;
+import uk.ac.leeds.ccg.andyt.math.Math_byte;
+import uk.ac.leeds.ccg.andyt.math.Math_double;
+import uk.ac.leeds.ccg.andyt.math.Math_int;
+import uk.ac.leeds.ccg.andyt.math.Math_long;
+import uk.ac.leeds.ccg.andyt.math.Math_short;
 
 /**
  * This class produces source code for loading the Understanding Society survey
@@ -332,9 +337,7 @@ public class US_JavaCodeGenerator extends US_Object {
             v0[i] = Byte.MIN_VALUE;
             v1[i] = Byte.MIN_VALUE;
         }
-        br.lines()
-                .skip(1)
-                .forEach(l -> {
+        br.lines()                .skip(1)                .forEach(l -> {
                     String[] split = l.split("\t");
                     for (int i = 0; i < nf; i++) {
                         parse(split[i], fields[i], i, strings, doubles, longs,
@@ -418,7 +421,7 @@ public class US_JavaCodeGenerator extends US_Object {
                                             ints, shorts, bytes);
                                 } else {
                                     if (booleans[index]) {
-                                        if (isByte(s)) {
+                                        if (Math_byte.isByte(s)) {
                                             byte b = Byte.valueOf(s);
                                             if (v0[index] > Byte.MIN_VALUE) {
                                                 if (!(b == v0[index])) {
@@ -455,7 +458,7 @@ public class US_JavaCodeGenerator extends US_Object {
     protected void doByte(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs, boolean[] ints,
             boolean[] shorts, boolean[] bytes) {
-        if (!isByte(s)) {
+        if (!Math_byte.isByte(s)) {
             bytes[index] = false;
             shorts[index] = true;
             doShort(s, index, strings, doubles, longs, ints, shorts);
@@ -465,7 +468,7 @@ public class US_JavaCodeGenerator extends US_Object {
     protected void doShort(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs, boolean[] ints,
             boolean[] shorts) {
-        if (!isShort(s)) {
+        if (!Math_short.isShort(s)) {
             shorts[index] = false;
             ints[index] = true;
             doInt(s, index, strings, doubles, longs, ints);
@@ -474,7 +477,7 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected void doInt(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs, boolean[] ints) {
-        if (!isInt(s)) {
+        if (!Math_int.isInt(s)) {
             ints[index] = false;
             longs[index] = true;
             doLong(s, index, strings, doubles, longs);
@@ -483,7 +486,7 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected void doLong(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs) {
-        if (!isLong(s)) {
+        if (!Math_long.isLong(s)) {
             longs[index] = false;
             doubles[index] = true;
             doDouble(s, index, strings, doubles);
@@ -492,54 +495,9 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected void doDouble(String s, int index, boolean[] strings,
             boolean[] doubles) {
-        if (!isDouble(s)) {
+        if (!Math_double.isDouble(s)) {
             doubles[index] = false;
             strings[index] = true;
-        }
-    }
-
-    public boolean isByte(String s) {
-        try {
-            byte b = Byte.parseByte(s);
-            return b > Byte.MIN_VALUE;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public boolean isShort(String s) {
-        try {
-            short sh = Short.parseShort(s);
-            return sh > Short.MIN_VALUE;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public boolean isInt(String s) {
-        try {
-            int i = Integer.parseInt(s);
-            return i > Integer.MIN_VALUE;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public boolean isLong(String s) {
-        try {
-            long l = Long.parseLong(s);
-            return l > Long.MIN_VALUE;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    public boolean isDouble(String s) {
-        try {
-            Double.parseDouble(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
         }
     }
 
