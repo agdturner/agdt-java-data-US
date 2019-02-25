@@ -18,7 +18,6 @@ package uk.ac.leeds.ccg.andyt.generic.data.us.io;
 import java.io.File;
 import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
-import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
 
 /**
  *
@@ -28,11 +27,10 @@ public class US_Files extends Generic_Files implements Serializable {
 
     /**
      *
-     * @param s
      * @param dir
      */
-    public US_Files(US_Strings s, File dir) {
-        super(s, dir);
+    public US_Files(File dir) {
+        super(dir);
     }
 
     public File getInputDataDir(String s) {

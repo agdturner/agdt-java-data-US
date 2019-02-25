@@ -32,9 +32,9 @@ import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.us.io.US_Files;
 import uk.ac.leeds.ccg.andyt.generic.data.us.core.US_Object;
 import uk.ac.leeds.ccg.andyt.generic.data.us.data.US_Data;
-import uk.ac.leeds.ccg.andyt.math.Math_byte;
-import uk.ac.leeds.ccg.andyt.math.Math_double;
-import uk.ac.leeds.ccg.andyt.math.Math_int;
+import uk.ac.leeds.ccg.andyt.math.Math_Byte;
+import uk.ac.leeds.ccg.andyt.math.Math_Double;
+import uk.ac.leeds.ccg.andyt.math.Math_Integer;
 import uk.ac.leeds.ccg.andyt.math.Math_long;
 import uk.ac.leeds.ccg.andyt.math.Math_short;
 
@@ -421,7 +421,7 @@ public class US_JavaCodeGenerator extends US_Object {
                                             ints, shorts, bytes);
                                 } else {
                                     if (booleans[index]) {
-                                        if (Math_byte.isByte(s)) {
+                                        if (Math_Byte.isByte(s)) {
                                             byte b = Byte.valueOf(s);
                                             if (v0[index] > Byte.MIN_VALUE) {
                                                 if (!(b == v0[index])) {
@@ -458,7 +458,7 @@ public class US_JavaCodeGenerator extends US_Object {
     protected void doByte(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs, boolean[] ints,
             boolean[] shorts, boolean[] bytes) {
-        if (!Math_byte.isByte(s)) {
+        if (!Math_Byte.isByte(s)) {
             bytes[index] = false;
             shorts[index] = true;
             doShort(s, index, strings, doubles, longs, ints, shorts);
@@ -477,7 +477,7 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected void doInt(String s, int index, boolean[] strings,
             boolean[] doubles, boolean[] longs, boolean[] ints) {
-        if (!Math_int.isInt(s)) {
+        if (!Math_Integer.isInt(s)) {
             ints[index] = false;
             longs[index] = true;
             doLong(s, index, strings, doubles, longs);
@@ -495,7 +495,7 @@ public class US_JavaCodeGenerator extends US_Object {
 
     protected void doDouble(String s, int index, boolean[] strings,
             boolean[] doubles) {
-        if (!Math_double.isDouble(s)) {
+        if (!Math_Double.isDouble(s)) {
             doubles[index] = false;
             strings[index] = true;
         }
