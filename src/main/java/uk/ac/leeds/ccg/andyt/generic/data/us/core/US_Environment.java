@@ -29,8 +29,7 @@ public class US_Environment extends US_OutOfMemoryErrorHandler
     public US_Environment(Generic_Environment ge) {
         //Memory_Threshold = 3000000000L;
         this.ge = ge;
-        strings = new US_Strings();
-        files = new US_Files(strings, ge.getFiles().getDataDir());
+        files = new US_Files(ge.getFiles().getDataDir());
         File f;
         f = files.getEnvDataFile();
         if (f.exists()) {
